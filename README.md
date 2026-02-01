@@ -1,17 +1,22 @@
 # Lexora
 
-Lexora is a platform-level AI intelligence system designed to provide structured, accurate, and syllabus-aligned knowledge across universities, domains, and languages.
 
-Unlike traditional AI chatbots, Lexora focuses on **clarity, structure, and verification**, especially for high-impact domains such as education, law, and medicine.
+Lexora is a universal, all-in-one AI intelligence system designed to adapt to **user intent**, **domain**, and **risk level**.
+
+Instead of giving generic answers, Lexora first understands **what the user wants to do** — academic learning, professional tasks, development work, business decisions, or general problem-solving — and then applies the appropriate intelligence framework.
+
+Lexora is not limited to education.
+It is a **context-aware, multi-mode intelligence platform**.
 
 ## 🎯 Vision
 To become a universal intelligence layer that understands **what to answer**, **how to answer**, and **when human validation is required**.
 
 ## 🧠 Core Principles
-- Structure over verbosity
-- Accuracy over speed
-- Human-in-the-loop for high-risk domains
-- Domain-agnostic, syllabus-aware intelligence
+- Intent-first interaction (asks before answering)
+- Mode-based intelligence routing
+- Structure over randomness
+- Accuracy scaled by risk level
+- Human-in-the-loop for high-impact domains
 
 ## 🧩 Current Status
 - Early-stage system design
