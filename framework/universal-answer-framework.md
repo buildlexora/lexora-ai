@@ -1,19 +1,10 @@
-## Universal Answer Framework (UAF)
+# Universal Answer Framework 🧩
 
-Every Lexora response follows a structured format:
+## Principle
+Every output from Lexora follows a structured framework:
 
-1. Topic Overview
-2. Core Concepts
-3. Deep Explanation
-4. Diagrams / Logical Flow
-5. Step-by-Step Breakdown
-6. Real-World or Academic Examples
-7. Common Mistakes
-8. Summary
-9. Micro-Assessment (Optional)
-
-This ensures:
-- Predictability
-- Accuracy
-- Easy verification
-- Better learning outcomes
+1. **Intent Capture** — What is the user trying to achieve?
+2. **Domain Detection** — What field/context does this belong to?
+3. **Risk Assessment** — What's the impact of a wrong answer?
+4. **Mode Selection** — Which intelligence mode applies?
+5. **Structured Output** — Deliver with clarity and precision
