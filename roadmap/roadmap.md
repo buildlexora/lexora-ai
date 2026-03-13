@@ -1,16 +1,17 @@
-## Lexora Roadmap
+# Roadmap 🚀
 
-Phase 1:
-- Core framework definition
-- Syllabus structure modeling
-- Prototype prompt engineering
+## Phase 1 — Foundation ✅
+- [x] Vision defined
+- [x] Core architecture designed
+- [x] 7 engines mapped
+- [x] Universal Answer Framework documented
 
-Phase 2:
-- API-based intelligence layer
-- Multi-domain support
-- Basic verification workflows
+## Phase 2 — Prototype 🔄
+- [ ] Intent Interpreter MVP
+- [ ] Basic CLI interface
+- [ ] Engine routing logic
 
-Phase 3:
-- Expert validation system
-- Security & compliance layers
-- Platform expansion
+## Phase 3 — Build
+- [ ] Full engine integration
+- [ ] Web interface
+- [ ] Beta testing
