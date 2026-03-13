@@ -1,27 +1,48 @@
-# Lexora
+# Lexora ⚡
+> Build Smarter. Ship Structured.
 
+Lexora is a structured vibe-coding agent that converts raw ideas into 
+fully architected, buildable software.
 
-Lexora is a universal, all-in-one AI intelligence system designed to adapt to **user intent**, **domain**, and **risk level**.
+Most AI coding tools jump straight to code.
+Lexora thinks first.
 
-Instead of giving generic answers, Lexora first understands **what the user wants to do** — academic learning, professional tasks, development work, business decisions, or general problem-solving — and then applies the appropriate intelligence framework.
+**Intent → Architecture → Execution Plan → Code**
 
-Lexora is not limited to education.
-It is a **context-aware, multi-mode intelligence platform**.
+---
 
-## 🎯 Vision
-To become a universal intelligence layer that understands **what to answer**, **how to answer**, and **when human validation is required**.
+## 🧠 Core Philosophy
+The problem was never writing code.
+It was building the wrong thing — fast.
 
-## 🧠 Core Principles
-- Intent-first interaction (asks before answering)
-- Mode-based intelligence routing
-- Structure over randomness
-- Accuracy scaled by risk level
-- Human-in-the-loop for high-impact domains
+Lexora solves this by understanding intent before touching execution.
 
-## 🧩 Current Status
-- Early-stage system design
-- Core framework definition
-- Architecture planning
+---
 
-## 🚀 Roadmap
-See `/roadmap/roadmap.md` for planned milestones.
+## ⚙️ The 7 Engines
+| Engine | Role |
+|---|---|
+| Intent Interpreter | Understands what you're actually trying to build |
+| System Architect | Designs the full system architecture |
+| Task Decomposition | Breaks it into actionable steps |
+| Execution Engine | Generates structured, production-ready code |
+| Project State Memory | Tracks progress across sessions |
+| Code Quality Guard | Enforces standards before output |
+| Iteration Engine | Refines based on feedback |
+
+---
+
+## 🚧 Status
+Currently in active development — architecture-first approach.
+
+---
+
+## 🛠️ Tech Stack
+- Python
+- NLP / LLM integration
+- System Design & Architecture
+
+---
+
+## 📬 Connect
+Built by [Manu B.M.](https://linkedin.com/in/manu-bm)
