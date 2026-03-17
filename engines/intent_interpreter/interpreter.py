@@ -1,48 +1,38 @@
+import os
+import json
+from groq import Groq
+from dotenv import load_dotenv
+
+load_dotenv()
+
 class IntentInterpreter:
     def __init__(self):
-        self.domain_keywords = {
-            "productivity": ["task", "habit", "track", "schedule"],
-            "ecommerce": ["shop", "buy", "sell", "product"],
-            "social": ["connect", "share", "follow", "post"],
-            "education": ["learn", "study", "course", "quiz"],
-        }
+        self.client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
     def interpret(self, raw_input: str) -> dict:
-        return {
-            "goal": self.extract_goal(raw_input),
-            "domain": self.detect_domain(raw_input),
-            "complexity": self.estimate_complexity(raw_input),
-            "core_features": self.extract_features(raw_input),
-            "output_type": self.detect_output_type(raw_input),
-        }
+        prompt = f"""
+You are Lexora's Intent Interpreter engine.
+Analyze the following idea and return a structured JSON object.
 
-    def detect_domain(self, text: str) -> str:
-        text = text.lower()
-        for domain, keywords in self.domain_keywords.items():
-            if any(kw in text for kw in keywords):
-                return domain
-        return "general"
+Idea: "{raw_input}"
 
-    def extract_goal(self, text: str) -> str:
-        return text.strip().lower()
+Return ONLY a valid JSON object with these fields:
+{{
+  "goal": "clear one line description of what to build",
+  "domain": "one of: productivity, ecommerce, social, education, health, finance, general",
+  "complexity": "one of: low, medium, high",
+  "core_features": ["list", "of", "key", "features"],
+  "output_type": "one of: web app, mobile app, api, desktop app",
+  "target_users": "who will use this"
+}}
 
-    def estimate_complexity(self, text: str) -> str:
-        word_count = len(text.split())
-        if word_count < 10:
-            return "low"
-        elif word_count < 25:
-            return "medium"
-        return "high"
+Return ONLY the JSON. No explanation. No markdown.
+"""
+        response = self.client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+        )
 
-    def extract_features(self, text: str) -> list:
-        return []
-
-    def detect_output_type(self, text: str) -> str:
-        text = text.lower()
-        if any(w in text for w in ["app", "mobile", "android", "ios"]):
-            return "mobile app"
-        if any(w in text for w in ["website", "web", "browser"]):
-            return "web app"
-        if any(w in text for w in ["api", "backend", "server"]):
-            return "api"
-        return "web app"
+        raw = response.choices[0].message.content.strip()
+        return json.loads(raw)
