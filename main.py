@@ -8,8 +8,8 @@ from engines.iteration_engine.iterator import IterationEngine
 import json
 
 def main():
-    print("⚡ Lexora — Full Pipeline")
-    print("-------------------------")
+    print("⚡ Lexora — Vibe Coding Agent")
+    print("------------------------------")
     raw = input("Describe what you want to build: ")
 
     print("\n🧠 Interpreting intent...")
@@ -42,15 +42,21 @@ def main():
     quality = guard.review(intent, architecture, execution)
     print(json.dumps(quality, indent=2))
 
+    print("\n💻 Generating code...")
+    print("This may take a moment...\n")
+    files = executor.generate_code(intent, architecture)
+    written = executor.write_files(files)
+    print(f"\n✅ {len(written)} files generated in /output folder!")
+
     print("\n🔄 Iteration engine ready.")
-    feedback = input("Any feedback to refine the plan? (or press Enter to skip): ")
+    feedback = input("Any feedback to refine? (or press Enter to skip): ")
     if feedback.strip():
         iterator = IterationEngine()
         refinements = iterator.refine(state, feedback)
         print("\n✅ Refined Plan:")
         print(json.dumps(refinements, indent=2))
 
-    print("\n⚡ Lexora pipeline complete. Build Smarter. Ship Structured.")
+    print("\n⚡ Lexora complete. Build Smarter. Ship Structured.")
 
 if __name__ == "__main__":
     main()
