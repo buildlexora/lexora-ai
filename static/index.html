@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lexora ⚡</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; }
+    .hero { text-align: center; padding: 60px 20px 40px; }
+    .logo { font-size: 48px; font-weight: 600; letter-spacing: -1px; }
+    .tagline { color: #888; font-size: 16px; margin-top: 8px; letter-spacing: 2px; }
+    .input-section { max-width: 700px; margin: 0 auto; padding: 0 20px; }
+    textarea { width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 20px; border-radius: 12px; font-size: 16px; resize: none; height: 120px; outline: none; transition: border 0.2s; }
+    textarea:focus { border-color: #444; }
+    textarea::placeholder { color: #444; }
+    button { width: 100%; margin-top: 12px; padding: 16px; background: #fff; color: #000; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .output { max-width: 700px; margin: 40px auto; padding: 0 20px 60px; }
+    .card { background: #111; border: 1px solid #1e1e1e; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+    .card h3 { font-size: 13px; font-weight: 500; color: #888; letter-spacing: 2px; margin-bottom: 16px; }
+    .tag { display: inline-block; background: #1a1a1a; border: 1px solid #222; border-radius: 6px; padding: 4px 10px; font-size: 13px; color: #ccc; margin: 4px 4px 4px 0; }
+    .stack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stack-item { background: #1a1a1a; border-radius: 8px; padding: 12px 16px; }
+    .stack-label { font-size: 11px; color: #555; letter-spacing: 1px; margin-bottom: 4px; }
+    .stack-value { font-size: 14px; color: #fff; font-weight: 500; }
+    .score { font-size: 36px; font-weight: 600; color: #fff; }
+    .score-sub { font-size: 13px; color: #555; margin-top: 4px; }
+    .approved { display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-top: 12px; }
+    .approved.yes { background: #0f2e1a; color: #4caf50; border: 1px solid #1e4d2b; }
+    .approved.no { background: #2e0f0f; color: #f44336; border: 1px solid #4d1e1e; }
+    .loading { text-align: center; padding: 40px; color: #555; font-size: 14px; letter-spacing: 1px; }
+    .phase { background: #1a1a1a; border-radius: 8px; padding: 16px; margin-bottom: 10px; }
+    .phase-title { font-size: 14px; font-weight: 500; color: #fff; margin-bottom: 4px; }
+    .phase-duration { font-size: 12px; color: #555; }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div class="logo">Lexora ⚡</div>
+    <div class="tagline">BUILD SMARTER. SHIP STRUCTURED.</div>
+  </div>
+
+  <div class="input-section">
+    <textarea id="idea" placeholder="Describe what you want to build..."></textarea>
+    <button id="buildBtn" onclick="build()">Generate Architecture + Code</button>
+  </div>
+
+  <div class="output" id="output"></div>
+
+  <script>
+    async function build() {
+      const idea = document.getElementById('idea').value.trim()
+      if (!idea) return
+      const btn = document.getElementById('buildBtn')
+      const output = document.getElementById('output')
+      btn.disabled = true
+      btn.textContent = 'Building...'
+      output.innerHTML = '<div class="loading">⚡ Lexora is thinking...</div>'
+
+      try {
+        const res = await fetch('/build', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idea })
+        })
+        const data = await res.json()
+        if (data.error) throw new Error(data.error)
+        render(data)
+      } catch (e) {
+        output.innerHTML = `<div class="card"><h3>ERROR</h3><p style="color:#f44336">${e.message}</p></div>`
+      }
+
+      btn.disabled = false
+      btn.textContent = 'Generate Architecture + Code'
+    }
+
+    function render(data) {
+      const { intent, architecture, tasks, quality, summary } = data
+      document.getElementById('output').innerHTML = `
+        <div class="card">
+          <h3>INTENT</h3>
+          <p style="font-size:18px;font-weight:500;margin-bottom:12px">${intent.goal}</p>
+          <div><span class="tag">${intent.domain}</span><span class="tag">${intent.complexity} complexity</span><span class="tag">${intent.output_type}</span></div>
+          <p style="font-size:13px;color:#555;margin-top:12px">Target: ${intent.target_users}</p>
+          <div style="margin-top:12px">${intent.core_features.map(f => `<span class="tag">${f}</span>`).join('')}</div>
+        </div>
+
+        <div class="card">
+          <h3>ARCHITECTURE</h3>
+          <div class="stack-grid">
+            ${Object.entries(architecture.stack).map(([k,v]) => `<div class="stack-item"><div class="stack-label">${k.toUpperCase()}</div><div class="stack-value">${v}</div></div>`).join('')}
+          </div>
+          <div style="margin-top:16px">${architecture.core_modules.map(m => `<span class="tag">${m}</span>`).join('')}</div>
+        </div>
+
+        <div class="card">
+          <h3>TASK BREAKDOWN</h3>
+          ${tasks.phases.map(p => `<div class="phase"><div class="phase-title">${p.phase}</div><div class="phase-duration">${p.duration} · ${p.tasks.length} tasks</div></div>`).join('')}
+          <p style="font-size:13px;color:#555;margin-top:12px">Total: ${tasks.total_estimated_time} · Team: ${tasks.recommended_team_size}</p>
+        </div>
+
+        <div class="card">
+          <h3>QUALITY CHECK</h3>
+          <div class="score">${quality.quality_score}<span style="font-size:18px;color:#555">/10</span></div>
+          <div class="score-sub">Quality Score</div>
+          <div class="approved ${quality.approved ? 'yes' : 'no'}">${quality.approved ? '✓ Approved' : '⚠ Needs Review'}</div>
+          <div style="margin-top:16px">${quality.improvements.map(i => `<div style="font-size:13px;color:#888;padding:6px 0;border-bottom:1px solid #1a1a1a">${i}</div>`).join('')}</div>
+        </div>
+
+        <div class="card">
+          <h3>PROJECT STATE</h3>
+          <p style="font-size:13px;color:#888">ID: ${summary.project_id}</p>
+          <p style="font-size:13px;color:#888;margin-top:4px">Phase: ${summary.progress.current_phase}</p>
+          <p style="font-size:13px;color:#888;margin-top:4px">Status: ${summary.status}</p>
+        </div>
+      `
+    }
+  </script>
+</body>
+</html>
