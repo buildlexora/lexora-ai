@@ -34,6 +34,11 @@
     .phase { background: #1a1a1a; border-radius: 8px; padding: 16px; margin-bottom: 10px; }
     .phase-title { font-size: 14px; font-weight: 500; color: #fff; margin-bottom: 4px; }
     .phase-duration { font-size: 12px; color: #555; }
+    .file-card { background: #1a1a1a; border-radius: 8px; padding: 16px; margin-bottom: 10px; }
+    .file-name { font-size: 13px; font-weight: 500; color: #888; font-family: monospace; margin-bottom: 8px; }
+    .file-preview { font-size: 12px; color: #555; font-family: monospace; white-space: pre-wrap; max-height: 150px; overflow-y: auto; }
+    .download-btn { width: 100%; margin-top: 16px; padding: 14px; background: #111; color: #fff; border: 1px solid #333; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: border 0.2s; }
+    .download-btn:hover { border-color: #fff; }
   </style>
 </head>
 <body>
@@ -50,14 +55,16 @@
   <div class="output" id="output"></div>
 
   <script>
+    let generatedFiles = {}
+
     async function build() {
       const idea = document.getElementById('idea').value.trim()
       if (!idea) return
       const btn = document.getElementById('buildBtn')
       const output = document.getElementById('output')
       btn.disabled = true
-      btn.textContent = 'Building...'
-      output.innerHTML = '<div class="loading">⚡ Lexora is thinking...</div>'
+      btn.textContent = '⚡ Building...'
+      output.innerHTML = '<div class="loading">Lexora is thinking... this takes about 30 seconds</div>'
 
       try {
         const res = await fetch('/build', {
@@ -67,6 +74,7 @@
         })
         const data = await res.json()
         if (data.error) throw new Error(data.error)
+        generatedFiles = data.files || {}
         render(data)
       } catch (e) {
         output.innerHTML = `<div class="card"><h3>ERROR</h3><p style="color:#f44336">${e.message}</p></div>`
@@ -76,8 +84,22 @@
       btn.textContent = 'Generate Architecture + Code'
     }
 
+    async function downloadFiles() {
+      const res = await fetch('/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ files: generatedFiles })
+      })
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'lexora-project.zip'
+      a.click()
+    }
+
     function render(data) {
-      const { intent, architecture, tasks, quality, summary } = data
+      const { intent, architecture, tasks, quality, summary, files } = data
       document.getElementById('output').innerHTML = `
         <div class="card">
           <h3>INTENT</h3>
@@ -107,6 +129,17 @@
           <div class="score-sub">Quality Score</div>
           <div class="approved ${quality.approved ? 'yes' : 'no'}">${quality.approved ? '✓ Approved' : '⚠ Needs Review'}</div>
           <div style="margin-top:16px">${quality.improvements.map(i => `<div style="font-size:13px;color:#888;padding:6px 0;border-bottom:1px solid #1a1a1a">${i}</div>`).join('')}</div>
+        </div>
+
+        <div class="card">
+          <h3>GENERATED CODE</h3>
+          ${Object.entries(files).map(([name, content]) => `
+            <div class="file-card">
+              <div class="file-name">📄 ${name}</div>
+              <div class="file-preview">${content.substring(0, 300)}...</div>
+            </div>
+          `).join('')}
+          <button class="download-btn" onclick="downloadFiles()">⬇ Download Project as ZIP</button>
         </div>
 
         <div class="card">
