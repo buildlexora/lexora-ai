@@ -1,6 +1,9 @@
 # Lexora ⚡
 > Build Smarter. Ship Structured.
 
+## 🌍 Live Demo
+👉 [lexora-ai-production.up.railway.app](https://lexora-ai-production.up.railway.app)
+
 Lexora is a structured vibe-coding agent that converts raw ideas into 
 fully architected, buildable software.
 
