@@ -21,10 +21,12 @@
     .card { background: #111; border: 1px solid #1e1e1e; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
     .card h3 { font-size: 13px; font-weight: 500; color: #888; letter-spacing: 2px; margin-bottom: 16px; }
     .tag { display: inline-block; background: #1a1a1a; border: 1px solid #222; border-radius: 6px; padding: 4px 10px; font-size: 13px; color: #ccc; margin: 4px 4px 4px 0; }
+    .tag.active { background: #1a2a1a; border-color: #2a4a2a; color: #4caf50; }
+    .tag.inactive { background: #2a1a1a; border-color: #4a2a2a; color: #888; text-decoration: line-through; }
     .stack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .stack-item { background: #1a1a1a; border-radius: 8px; padding: 12px 16px; }
-    .stack-label { font-size: 11px; color: #555; letter-spacing: 1px; margin-bottom: 4px; }
-    .stack-value { font-size: 14px; color: #fff; font-weight: 500; }
+    .stack-label { font-size: 11px; color: #555; letter-spacing: 1px; margin-bottom: 6px; }
+    .stack-select { width: 100%; background: #222; border: 1px solid #333; color: #fff; padding: 8px; border-radius: 6px; font-size: 13px; outline: none; }
     .score { font-size: 36px; font-weight: 600; color: #fff; }
     .score-sub { font-size: 13px; color: #555; margin-top: 4px; }
     .approved { display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-top: 12px; }
@@ -39,6 +41,11 @@
     .file-preview { font-size: 12px; color: #555; font-family: monospace; white-space: pre-wrap; max-height: 150px; overflow-y: auto; }
     .download-btn { width: 100%; margin-top: 16px; padding: 14px; background: #111; color: #fff; border: 1px solid #333; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: border 0.2s; }
     .download-btn:hover { border-color: #fff; }
+    .role-badge { display: inline-block; background: #111; border: 1px solid #333; border-radius: 8px; padding: 8px 16px; font-size: 13px; color: #fff; margin-bottom: 12px; }
+    .role-badge span { color: #888; margin-right: 6px; }
+    .customize-btn { width: 100%; margin-top: 8px; padding: 10px; background: transparent; color: #888; border: 1px solid #222; border-radius: 8px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+    .customize-btn:hover { border-color: #444; color: #fff; }
+    .verdict { font-size: 14px; color: #888; margin-top: 12px; padding: 12px; background: #1a1a1a; border-radius: 8px; font-style: italic; }
   </style>
 </head>
 <body>
@@ -56,8 +63,9 @@
 
   <script>
     let generatedFiles = {}
+    let currentArchitecture = {}
 
-    async function build() {
+    async function build(customStack = null) {
       const idea = document.getElementById('idea').value.trim()
       if (!idea) return
       const btn = document.getElementById('buildBtn')
@@ -67,14 +75,18 @@
       output.innerHTML = '<div class="loading">Lexora is thinking... this takes about 30 seconds</div>'
 
       try {
+        const body = { idea }
+        if (customStack) body.user_stack = customStack
+
         const res = await fetch('/build', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idea })
+          body: JSON.stringify(body)
         })
         const data = await res.json()
         if (data.error) throw new Error(data.error)
         generatedFiles = data.files || {}
+        currentArchitecture = data.architecture || {}
         render(data)
       } catch (e) {
         output.innerHTML = `<div class="card"><h3>ERROR</h3><p style="color:#f44336">${e.message}</p></div>`
@@ -82,6 +94,14 @@
 
       btn.disabled = false
       btn.textContent = 'Generate Architecture + Code'
+    }
+
+    function applyCustomStack() {
+      const stack = {}
+      document.querySelectorAll('.stack-select').forEach(sel => {
+        if (sel.value) stack[sel.dataset.key] = sel.value
+      })
+      build(stack)
     }
 
     async function downloadFiles() {
@@ -98,23 +118,61 @@
       a.click()
     }
 
+    const stackOptions = {
+      frontend: ['React', 'Vue.js', 'Angular', 'Svelte', 'Next.js', 'HTML/CSS/JS', 'React Native', 'Flutter'],
+      backend: ['Node.js + Express', 'FastAPI', 'Django', 'Flask', 'Spring Boot', 'Laravel', 'Ruby on Rails'],
+      database: ['MongoDB', 'PostgreSQL', 'MySQL', 'Firebase', 'Supabase', 'SQLite', 'Redis'],
+      hosting: ['Vercel', 'Railway', 'AWS', 'Google Cloud', 'Netlify', 'Heroku', 'DigitalOcean'],
+    }
+
     function render(data) {
-      const { intent, architecture, tasks, quality, summary, files } = data
+      const { role, intent, architecture, tasks, quality, summary, files } = data
+
+      const components = role.requires_backend || role.requires_database
+        ? `
+          <div style="margin-top:12px">
+            ${role.requires_backend ? '<span class="tag active">Backend ✓</span>' : '<span class="tag inactive">Backend ✗</span>'}
+            ${role.requires_database ? '<span class="tag active">Database ✓</span>' : '<span class="tag inactive">Database ✗</span>'}
+            ${role.requires_authentication ? '<span class="tag active">Auth ✓</span>' : ''}
+            ${role.requires_realtime ? '<span class="tag active">Realtime ✓</span>' : ''}
+            ${role.requires_payments ? '<span class="tag active">Payments ✓</span>' : ''}
+            ${role.requires_ml ? '<span class="tag active">ML ✓</span>' : ''}
+          </div>` : ''
+
+      const stackKeys = Object.keys(architecture.stack || {})
+      const stackCustomizer = stackKeys.map(key => `
+        <div class="stack-item">
+          <div class="stack-label">${key.toUpperCase()}</div>
+          <select class="stack-select" data-key="${key}">
+            <option value="${architecture.stack[key]}">${architecture.stack[key]} (recommended)</option>
+            ${(stackOptions[key] || []).filter(o => o !== architecture.stack[key]).map(o => `<option value="${o}">${o}</option>`).join('')}
+          </select>
+        </div>
+      `).join('')
+
       document.getElementById('output').innerHTML = `
         <div class="card">
+          <h3>ROLE DETECTED</h3>
+          <div class="role-badge"><span>Primary:</span>${role.primary_role}</div>
+          <div style="margin-top:8px">${(role.secondary_roles || []).map(r => `<span class="tag">${r}</span>`).join('')}</div>
+          ${components}
+          <p style="font-size:12px;color:#555;margin-top:12px;font-style:italic">${role.reasoning}</p>
+        </div>
+
+        <div class="card">
           <h3>INTENT</h3>
-          <p style="font-size:18px;font-weight:500;margin-bottom:12px">${intent.goal}</p>
-          <div><span class="tag">${intent.domain}</span><span class="tag">${intent.complexity} complexity</span><span class="tag">${intent.output_type}</span></div>
+          <p style="font-size:18px;font-weight:500;margin-bottom:8px">${intent.goal}</p>
+          <p style="font-size:13px;color:#555;margin-bottom:12px">${intent.problem_being_solved}</p>
+          <div><span class="tag">${intent.domain}</span><span class="tag">${intent.complexity}</span><span class="tag">${intent.output_type}</span><span class="tag">${intent.monetization_potential}</span></div>
           <p style="font-size:13px;color:#555;margin-top:12px">Target: ${intent.target_users}</p>
           <div style="margin-top:12px">${intent.core_features.map(f => `<span class="tag">${f}</span>`).join('')}</div>
         </div>
 
         <div class="card">
           <h3>ARCHITECTURE</h3>
-          <div class="stack-grid">
-            ${Object.entries(architecture.stack).map(([k,v]) => `<div class="stack-item"><div class="stack-label">${k.toUpperCase()}</div><div class="stack-value">${v}</div></div>`).join('')}
-          </div>
-          <div style="margin-top:16px">${architecture.core_modules.map(m => `<span class="tag">${m}</span>`).join('')}</div>
+          <p style="font-size:12px;color:#555;margin-bottom:16px;font-style:italic">${architecture.why_this_stack || ''}</p>
+          <div class="stack-grid">${stackCustomizer}</div>
+          <button class="customize-btn" onclick="applyCustomStack()">⚙ Apply Custom Stack & Regenerate</button>
         </div>
 
         <div class="card">
@@ -128,7 +186,11 @@
           <div class="score">${quality.quality_score}<span style="font-size:18px;color:#555">/10</span></div>
           <div class="score-sub">Quality Score</div>
           <div class="approved ${quality.approved ? 'yes' : 'no'}">${quality.approved ? '✓ Approved' : '⚠ Needs Review'}</div>
-          <div style="margin-top:16px">${quality.improvements.map(i => `<div style="font-size:13px;color:#888;padding:6px 0;border-bottom:1px solid #1a1a1a">${i}</div>`).join('')}</div>
+          <div class="verdict">${quality.verdict || ''}</div>
+          <div style="margin-top:16px">
+            ${quality.features_missing && quality.features_missing.length ? `<p style="font-size:12px;color:#f44336;margin-bottom:8px">Missing: ${quality.features_missing.join(', ')}</p>` : ''}
+            ${quality.improvements.map(i => `<div style="font-size:13px;color:#888;padding:6px 0;border-bottom:1px solid #1a1a1a">${i}</div>`).join('')}
+          </div>
         </div>
 
         <div class="card">
@@ -136,7 +198,7 @@
           ${Object.entries(files).map(([name, content]) => `
             <div class="file-card">
               <div class="file-name">📄 ${name}</div>
-              <div class="file-preview">${content.substring(0, 300)}...</div>
+              <div class="file-preview">${content.substring(0, 400)}...</div>
             </div>
           `).join('')}
           <button class="download-btn" onclick="downloadFiles()">⬇ Download Project as ZIP</button>

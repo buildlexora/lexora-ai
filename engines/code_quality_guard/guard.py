@@ -9,23 +9,43 @@ class CodeQualityGuard:
     def __init__(self):
         self.client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
-    def review(self, intent: dict, architecture: dict, execution: dict) -> dict:
+    def review(self, intent: dict, architecture: dict, files: dict) -> dict:
+        code_summary = ""
+        for filepath, content in files.items():
+            code_summary += f"\n--- {filepath} ---\n{content[:500]}\n"
+
         prompt = f"""
-You are Lexora's Code Quality Guard engine.
-Review the following project plan and identify potential issues, risks and improvements.
+You are Lexora's Code Quality Guard — a senior code reviewer with 10 years of experience.
+You are reviewing ACTUAL generated code, not a plan.
 
-Intent: {json.dumps(intent, indent=2)}
+Project Intent: {json.dumps(intent, indent=2)}
 Architecture: {json.dumps(architecture, indent=2)}
-Execution Plan: {json.dumps(execution, indent=2)}
 
-Return ONLY a valid JSON object with these fields:
+Generated Code Sample:
+{code_summary}
+
+Analyze this code CRITICALLY and HONESTLY. Do not give high scores to bad code.
+Check for:
+- Is the code actually specific to this project or is it generic boilerplate?
+- Are the features from the intent actually implemented?
+- Is there proper error handling?
+- Are there security vulnerabilities?
+- Is the code structure clean and maintainable?
+- Are there missing critical files?
+- Is the code production ready?
+
+Return ONLY a valid JSON object:
 {{
-  "quality_score": "score out of 10",
-  "risks": ["list", "of", "potential", "risks"],
-  "improvements": ["list", "of", "suggested", "improvements"],
-  "security_concerns": ["list", "of", "security", "issues", "to", "address"],
-  "scalability_notes": ["list", "of", "scalability", "considerations"],
-  "approved": true or false
+  "quality_score": "honest score out of 10 based on actual code quality",
+  "is_project_specific": true or false,
+  "features_implemented": ["list of features that are actually implemented"],
+  "features_missing": ["list of features from intent that are NOT implemented"],
+  "risks": ["real risks found in the actual code"],
+  "improvements": ["specific improvements needed for THIS code"],
+  "security_concerns": ["actual security issues found in the code"],
+  "scalability_notes": ["scalability issues specific to this codebase"],
+  "approved": true or false,
+  "verdict": "one honest sentence about the overall code quality"
 }}
 
 Return ONLY the JSON. No explanation. No markdown.
@@ -33,14 +53,9 @@ Return ONLY the JSON. No explanation. No markdown.
         response = self.client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
+            temperature=0.2,
         )
 
-        raw = response.choices[0].message.content.strip()
-        
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-        
-        return json.loads(raw.strip())
+        from engines.utils import clean_and_parse
+        raw = response.choices[0].message.content
+        return clean_and_parse(raw) 

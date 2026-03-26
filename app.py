@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
+from engines.role_detector.detector import RoleDetector
 from engines.intent_interpreter.interpreter import IntentInterpreter
 from engines.system_architect.architect import SystemArchitect
 from engines.task_decomposition.decomposer import TaskDecomposer
@@ -21,16 +22,23 @@ def home():
 def build():
     data = request.json
     raw = data.get('idea', '')
+    user_stack = data.get('user_stack', None)
 
     if not raw:
         return jsonify({"error": "No idea provided"}), 400
 
     try:
+        detector = RoleDetector()
+        role = detector.detect(raw)
+
         interpreter = IntentInterpreter()
         intent = interpreter.interpret(raw)
 
         architect = SystemArchitect()
-        architecture = architect.design(intent)
+        architecture = architect.design(intent, role)
+
+        if user_stack:
+            architecture['stack'] = user_stack
 
         decomposer = TaskDecomposer()
         tasks = decomposer.decompose(intent, architecture)
@@ -42,13 +50,13 @@ def build():
         state = memory.save(intent, architecture, tasks, execution)
         summary = memory.get_summary()
 
-        guard = CodeQualityGuard()
-        quality = guard.review(intent, architecture, execution)
+        files = executor.generate_code(intent, architecture, role)
 
-        print("💻 Generating code...")
-        files = executor.generate_code(intent, architecture)
+        guard = CodeQualityGuard()
+        quality = guard.review(intent, architecture, files)
 
         return jsonify({
+            "role": role,
             "intent": intent,
             "architecture": architecture,
             "tasks": tasks,

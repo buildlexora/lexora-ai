@@ -35,13 +35,9 @@ Return ONLY the JSON. No explanation. No markdown.
             temperature=0.2,
         )
 
-        raw = response.choices[0].message.content.strip()
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-
-        return json.loads(raw.strip())
+        from engines.utils import clean_and_parse
+        raw = response.choices[0].message.content
+        return clean_and_parse(raw)
 
     def generate_code(self, intent: dict, architecture: dict, role: dict) -> dict:
         prompt = f"""
@@ -84,13 +80,9 @@ Return ONLY the JSON. No explanation. No markdown.
             max_tokens=4000,
         )
 
-        raw = response.choices[0].message.content.strip()
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-
-        return json.loads(raw.strip())
+        from engines.utils import clean_and_parse
+        raw = response.choices[0].message.content
+        return clean_and_parse(raw)
 
     def write_files(self, files: dict, output_dir: str = "output") -> list:
         os.makedirs(output_dir, exist_ok=True)
