@@ -32,7 +32,7 @@ Return ONLY the JSON. No explanation. No markdown.
         response = self.client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
+            temperature=0.2,
         )
 
         raw = response.choices[0].message.content.strip()
@@ -43,40 +43,44 @@ Return ONLY the JSON. No explanation. No markdown.
 
         return json.loads(raw.strip())
 
-    def generate_code(self, intent: dict, architecture: dict) -> dict:
+    def generate_code(self, intent: dict, architecture: dict, role: dict) -> dict:
         prompt = f"""
-You are Lexora's Code Generator.
-Based on the intent and architecture below, generate a complete working codebase.
+You are Lexora's Code Generator. You are a {role.get('primary_role', 'Full Stack Developer')} with 10 years of experience.
+
+Generate a COMPLETE, WORKING, PRODUCTION-READY codebase for this specific project.
 
 Intent: {json.dumps(intent, indent=2)}
 Architecture: {json.dumps(architecture, indent=2)}
 
-Generate the following files with complete working code:
-1. server/index.js — Express server setup
-2. server/models/User.js — User model
-3. server/routes/index.js — Main routes
-4. client/src/App.js — Main React component
-5. package.json — Project dependencies
-6. .env.example — Environment variables template
-7. README.md — Project documentation
+STRICT RULES:
+- Generate code SPECIFIC to this exact project — no generic boilerplate
+- Every file must contain REAL, WORKING code for THIS specific app
+- Include the actual features listed in the intent
+- Use the exact stack specified in the architecture
+- If no backend needed, don't generate backend files
+- If no database needed, don't generate database files
+- Variable names, function names, and logic must match THIS specific project
+- A todo app must have todo-specific logic
+- A chat app must have chat-specific logic
+- A calculator must have calculator-specific logic
+- NEVER generate the same generic Express + React template
 
-Return ONLY a valid JSON object where keys are file paths and values are the complete file contents as strings.
-Example format:
-{{
-  "server/index.js": "const express = require('express')...",
-  "server/models/User.js": "const mongoose = require('mongoose')...",
-  "client/src/App.js": "import React from 'react'...",
-  "package.json": "{{\\"name\\": \\"project\\"...}}",
-  ".env.example": "PORT=3000...",
-  "README.md": "# Project..."
-}}
+Generate these files based on what the project actually needs:
+- Main entry point
+- Core feature files
+- UI components specific to this app
+- Configuration files
+- README specific to this project
 
-Return ONLY the JSON. No explanation. No markdown. Generate COMPLETE working code for each file.
+Return ONLY a valid JSON object where keys are file paths and values are complete file contents.
+Every file must have at least 30 lines of real, working, project-specific code.
+
+Return ONLY the JSON. No explanation. No markdown.
 """
         response = self.client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
+            temperature=0.4,
             max_tokens=4000,
         )
 
