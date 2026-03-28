@@ -6,102 +6,687 @@
   <title>Lexora ⚡</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; }
-    .hero { text-align: center; padding: 60px 20px 40px; }
-    .logo { font-size: 48px; font-weight: 600; letter-spacing: -1px; }
-    .tagline { color: #888; font-size: 16px; margin-top: 8px; letter-spacing: 2px; }
-    .input-section { max-width: 700px; margin: 0 auto; padding: 0 20px; }
-    textarea { width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 20px; border-radius: 12px; font-size: 16px; resize: none; height: 120px; outline: none; transition: border 0.2s; }
-    textarea:focus { border-color: #444; }
-    textarea::placeholder { color: #444; }
-    button { width: 100%; margin-top: 12px; padding: 16px; background: #fff; color: #000; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
-    button:hover { opacity: 0.85; }
-    button:disabled { opacity: 0.4; cursor: not-allowed; }
-    .output { max-width: 700px; margin: 40px auto; padding: 0 20px 60px; }
-    .card { background: #111; border: 1px solid #1e1e1e; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
-    .card h3 { font-size: 13px; font-weight: 500; color: #888; letter-spacing: 2px; margin-bottom: 16px; }
-    .tag { display: inline-block; background: #1a1a1a; border: 1px solid #222; border-radius: 6px; padding: 4px 10px; font-size: 13px; color: #ccc; margin: 4px 4px 4px 0; }
-    .tag.active { background: #1a2a1a; border-color: #2a4a2a; color: #4caf50; }
-    .tag.inactive { background: #2a1a1a; border-color: #4a2a2a; color: #888; text-decoration: line-through; }
-    .stack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .stack-item { background: #1a1a1a; border-radius: 8px; padding: 12px 16px; }
-    .stack-label { font-size: 11px; color: #555; letter-spacing: 1px; margin-bottom: 6px; }
-    .stack-select { width: 100%; background: #222; border: 1px solid #333; color: #fff; padding: 8px; border-radius: 6px; font-size: 13px; outline: none; }
-    .score { font-size: 36px; font-weight: 600; color: #fff; }
-    .score-sub { font-size: 13px; color: #555; margin-top: 4px; }
-    .approved { display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-top: 12px; }
-    .approved.yes { background: #0f2e1a; color: #4caf50; border: 1px solid #1e4d2b; }
-    .approved.no { background: #2e0f0f; color: #f44336; border: 1px solid #4d1e1e; }
-    .loading { text-align: center; padding: 40px; color: #555; font-size: 14px; letter-spacing: 1px; }
-    .phase { background: #1a1a1a; border-radius: 8px; padding: 16px; margin-bottom: 10px; }
-    .phase-title { font-size: 14px; font-weight: 500; color: #fff; margin-bottom: 4px; }
-    .phase-duration { font-size: 12px; color: #555; }
-    .file-card { background: #1a1a1a; border-radius: 8px; padding: 16px; margin-bottom: 10px; }
-    .file-name { font-size: 13px; font-weight: 500; color: #888; font-family: monospace; margin-bottom: 8px; }
-    .file-preview { font-size: 12px; color: #555; font-family: monospace; white-space: pre-wrap; max-height: 150px; overflow-y: auto; }
-    .download-btn { width: 100%; margin-top: 16px; padding: 14px; background: #111; color: #fff; border: 1px solid #333; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: border 0.2s; }
-    .download-btn:hover { border-color: #fff; }
-    .role-badge { display: inline-block; background: #111; border: 1px solid #333; border-radius: 8px; padding: 8px 16px; font-size: 13px; color: #fff; margin-bottom: 12px; }
-    .role-badge span { color: #888; margin-right: 6px; }
-    .customize-btn { width: 100%; margin-top: 8px; padding: 10px; background: transparent; color: #888; border: 1px solid #222; border-radius: 8px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
-    .customize-btn:hover { border-color: #444; color: #fff; }
-    .verdict { font-size: 14px; color: #888; margin-top: 12px; padding: 12px; background: #1a1a1a; border-radius: 8px; font-style: italic; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #000;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: 260px;
+      background: #0a0a0a;
+      border-right: 1px solid #1a1a1a;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      padding: 8px 0 24px;
+      border-bottom: 1px solid #1a1a1a;
+    }
+
+    .sidebar-logo span { color: #666; }
+
+    .new-chat-btn {
+      margin-top: 16px;
+      padding: 10px 14px;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.2s;
+      width: 100%;
+    }
+
+    .new-chat-btn:hover { background: #222; }
+
+    .history-label {
+      font-size: 11px;
+      color: #444;
+      letter-spacing: 1px;
+      margin: 20px 0 8px;
+    }
+
+    .history-item {
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #888;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-item:hover { background: #1a1a1a; color: #fff; }
+
+    /* Main */
+    .main {
+      margin-left: 260px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Chat area */
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 40px 0;
+      scroll-behavior: smooth;
+    }
+
+    .chat-area::-webkit-scrollbar { width: 4px; }
+    .chat-area::-webkit-scrollbar-track { background: transparent; }
+    .chat-area::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+    /* Welcome screen */
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .welcome-logo { font-size: 40px; font-weight: 600; letter-spacing: -1px; margin-bottom: 8px; }
+    .welcome-sub { font-size: 14px; color: #555; letter-spacing: 2px; margin-bottom: 48px; }
+
+    .suggestions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .suggestion {
+      background: #0f0f0f;
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .suggestion:hover { border-color: #333; background: #111; }
+    .suggestion-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+    .suggestion-sub { font-size: 12px; color: #555; }
+
+    /* Messages */
+    .message-wrapper {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+      width: 100%;
+    }
+
+    .user-message {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 24px;
+    }
+
+    .user-bubble {
+      background: #1a1a1a;
+      border: 1px solid #222;
+      border-radius: 18px 18px 4px 18px;
+      padding: 12px 18px;
+      font-size: 14px;
+      max-width: 80%;
+      line-height: 1.5;
+    }
+
+    .lexora-message { margin-bottom: 32px; }
+
+    .lexora-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .lexora-avatar {
+      width: 28px; height: 28px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #000;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .lexora-name { font-size: 13px; font-weight: 500; color: #888; }
+
+    /* Cards */
+    .card {
+      background: #0f0f0f;
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 12px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .card.visible { opacity: 1; transform: translateY(0); }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #555;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #1a1a1a;
+      border: 1px solid #222;
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 12px;
+      color: #aaa;
+      margin: 3px 3px 3px 0;
+    }
+
+    .tag.green { background: #0f1f0f; border-color: #1a3a1a; color: #4caf50; }
+    .tag.red { background: #1f0f0f; border-color: #3a1a1a; color: #888; text-decoration: line-through; }
+
+    .stack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+    .stack-item { background: #1a1a1a; border-radius: 8px; padding: 10px 14px; }
+    .stack-key { font-size: 10px; color: #555; letter-spacing: 1px; margin-bottom: 4px; }
+    .stack-val { font-size: 13px; color: #fff; font-weight: 500; }
+
+    .stack-select {
+      width: 100%;
+      background: #111;
+      border: 1px solid #2a2a2a;
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+      margin-top: 6px;
+    }
+
+    .phase { padding: 10px 0; border-bottom: 1px solid #1a1a1a; }
+    .phase:last-child { border-bottom: none; }
+    .phase-name { font-size: 13px; font-weight: 500; }
+    .phase-meta { font-size: 12px; color: #555; margin-top: 2px; }
+
+    .score-big { font-size: 42px; font-weight: 600; }
+    .score-verdict { font-size: 13px; color: #666; margin-top: 8px; font-style: italic; line-height: 1.5; }
+
+    .approved-badge {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 10px;
+    }
+    .approved-badge.yes { background: #0f2a0f; color: #4caf50; }
+    .approved-badge.no { background: #2a0f0f; color: #f44336; }
+
+    .file-item {
+      padding: 10px 0;
+      border-bottom: 1px solid #1a1a1a;
+      cursor: pointer;
+    }
+    .file-item:last-child { border-bottom: none; }
+    .file-path { font-size: 12px; font-family: monospace; color: #888; }
+    .file-preview { font-size: 11px; color: #444; font-family: monospace; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .regen-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 10px;
+      background: transparent;
+      border: 1px solid #222;
+      border-radius: 8px;
+      color: #888;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .regen-btn:hover { border-color: #444; color: #fff; }
+
+    .download-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px;
+      background: #fff;
+      border: none;
+      border-radius: 8px;
+      color: #000;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .download-btn:hover { opacity: 0.85; }
+
+    /* Input area */
+    .input-area {
+      padding: 16px 24px 24px;
+      background: #000;
+      border-top: 1px solid #111;
+    }
+
+    .input-wrapper {
+      max-width: 760px;
+      margin: 0 auto;
+      background: #0f0f0f;
+      border: 1px solid #1f1f1f;
+      border-radius: 16px;
+      display: flex;
+      align-items: flex-end;
+      padding: 12px 16px;
+      gap: 12px;
+      transition: border-color 0.2s;
+    }
+
+    .input-wrapper:focus-within { border-color: #333; }
+
+    #idea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      resize: none;
+      outline: none;
+      max-height: 200px;
+      line-height: 1.6;
+      font-family: inherit;
+    }
+
+    #idea::placeholder { color: #444; }
+
+    .send-btn {
+      width: 32px; height: 32px;
+      background: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: opacity 0.2s;
+    }
+
+    .send-btn:hover { opacity: 0.85; }
+    .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .send-btn svg { width: 14px; height: 14px; }
+
+    .input-hint {
+      text-align: center;
+      font-size: 11px;
+      color: #333;
+      margin-top: 10px;
+    }
+
+    /* Typing indicator */
+    .typing {
+      display: flex;
+      gap: 4px;
+      padding: 8px 0;
+    }
+    .typing span {
+      width: 6px; height: 6px;
+      background: #444;
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+
+    /* Typewriter */
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    .cursor { display: inline-block; width: 2px; height: 14px; background: #fff; margin-left: 2px; animation: blink 1s infinite; vertical-align: middle; }
   </style>
 </head>
 <body>
-  <div class="hero">
-    <div class="logo">Lexora ⚡</div>
-    <div class="tagline">BUILD SMARTER. SHIP STRUCTURED.</div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">Lexora <span>⚡</span></div>
+    <button class="new-chat-btn" onclick="newChat()">+ New Project</button>
+    <div class="history-label">RECENT</div>
+    <div id="history"></div>
   </div>
 
-  <div class="input-section">
-    <textarea id="idea" placeholder="Describe what you want to build..."></textarea>
-    <button id="buildBtn" onclick="build()">Generate Architecture + Code</button>
-  </div>
+  <!-- Main -->
+  <div class="main">
+    <div class="chat-area" id="chatArea">
+      <div class="welcome" id="welcome">
+        <div class="welcome-logo">Lexora ⚡</div>
+        <div class="welcome-sub">BUILD SMARTER. SHIP STRUCTURED.</div>
+        <div class="suggestions">
+          <div class="suggestion" onclick="fillAndSend('Build a todo app with user authentication')">
+            <div class="suggestion-title">Todo App</div>
+            <div class="suggestion-sub">With auth and CRUD</div>
+          </div>
+          <div class="suggestion" onclick="fillAndSend('Create a landing page for a SaaS product')">
+            <div class="suggestion-title">SaaS Landing Page</div>
+            <div class="suggestion-sub">No backend needed</div>
+          </div>
+          <div class="suggestion" onclick="fillAndSend('Build a real time chat application')">
+            <div class="suggestion-title">Chat App</div>
+            <div class="suggestion-sub">With websockets</div>
+          </div>
+          <div class="suggestion" onclick="fillAndSend('Create a machine learning model for sentiment analysis')">
+            <div class="suggestion-title">ML Model</div>
+            <div class="suggestion-sub">Sentiment analysis</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <div class="output" id="output"></div>
+    <!-- Input -->
+    <div class="input-area">
+      <div class="input-wrapper">
+        <textarea id="idea" placeholder="Describe what you want to build..." rows="1"
+          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="build()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="input-hint">Lexora thinks before it builds · lexora-ai-production.up.railway.app</div>
+    </div>
+  </div>
 
   <script>
     let generatedFiles = {}
-    let currentArchitecture = {}
+    let history = []
 
-    async function build(customStack = null) {
+    function autoResize(el) {
+      el.style.height = 'auto'
+      el.style.height = Math.min(el.scrollHeight, 200) + 'px'
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); build(); }
+    }
+
+    function fillAndSend(text) {
+      document.getElementById('idea').value = text
+      build()
+    }
+
+    function newChat() {
+      document.getElementById('chatArea').innerHTML = `<div class="welcome" id="welcome">
+        <div class="welcome-logo">Lexora ⚡</div>
+        <div class="welcome-sub">BUILD SMARTER. SHIP STRUCTURED.</div>
+        <div class="suggestions">
+          <div class="suggestion" onclick="fillAndSend('Build a todo app with user authentication')">
+            <div class="suggestion-title">Todo App</div><div class="suggestion-sub">With auth and CRUD</div>
+          </div>
+          <div class="suggestion" onclick="fillAndSend('Create a landing page for a SaaS product')">
+            <div class="suggestion-title">SaaS Landing Page</div><div class="suggestion-sub">No backend needed</div>
+          </div>
+          <div class="suggestion" onclick="fillAndSend('Build a real time chat application')">
+            <div class="suggestion-title">Chat App</div><div class="suggestion-sub">With websockets</div>
+          </div>
+          <div class="suggestion" onclick="fillAndSend('Create a machine learning model for sentiment analysis')">
+            <div class="suggestion-title">ML Model</div><div class="suggestion-sub">Sentiment analysis</div>
+          </div>
+        </div>
+      </div>`
+      document.getElementById('idea').value = ''
+    }
+
+    function addToHistory(idea) {
+      history.unshift(idea)
+      const histDiv = document.getElementById('history')
+      histDiv.innerHTML = history.slice(0, 8).map(h =>
+        `<div class="history-item" onclick="fillAndSend('${h.replace(/'/g, "\\'")}')">${h.substring(0, 35)}${h.length > 35 ? '...' : ''}</div>`
+      ).join('')
+    }
+
+    async function build() {
       const idea = document.getElementById('idea').value.trim()
       if (!idea) return
-      const btn = document.getElementById('buildBtn')
-      const output = document.getElementById('output')
-      btn.disabled = true
-      btn.textContent = '⚡ Building...'
-      output.innerHTML = '<div class="loading">Lexora is thinking... this takes about 30 seconds</div>'
+
+      const sendBtn = document.getElementById('sendBtn')
+      sendBtn.disabled = true
+
+      const welcome = document.getElementById('welcome')
+      if (welcome) welcome.remove()
+
+      const chatArea = document.getElementById('chatArea')
+
+      // User message
+      const userMsg = document.createElement('div')
+      userMsg.className = 'message-wrapper'
+      userMsg.innerHTML = `<div class="user-message"><div class="user-bubble">${idea}</div></div>`
+      chatArea.appendChild(userMsg)
+
+      // Typing indicator
+      const typingWrapper = document.createElement('div')
+      typingWrapper.className = 'message-wrapper'
+      typingWrapper.innerHTML = `
+        <div class="lexora-message">
+          <div class="lexora-header">
+            <div class="lexora-avatar">L</div>
+            <div class="lexora-name">Lexora</div>
+          </div>
+          <div class="typing"><span></span><span></span><span></span></div>
+        </div>`
+      chatArea.appendChild(typingWrapper)
+      chatArea.scrollTop = chatArea.scrollHeight
+
+      document.getElementById('idea').value = ''
+      document.getElementById('idea').style.height = 'auto'
+      addToHistory(idea)
 
       try {
-        const body = { idea }
-        if (customStack) body.user_stack = customStack
-
         const res = await fetch('/build', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+          body: JSON.stringify({ idea })
         })
         const data = await res.json()
         if (data.error) throw new Error(data.error)
         generatedFiles = data.files || {}
-        currentArchitecture = data.architecture || {}
-        render(data)
-      } catch (e) {
-        output.innerHTML = `<div class="card"><h3>ERROR</h3><p style="color:#f44336">${e.message}</p></div>`
+
+        typingWrapper.remove()
+        renderResponse(data, chatArea)
+
+      } catch(e) {
+        typingWrapper.remove()
+        const errWrapper = document.createElement('div')
+        errWrapper.className = 'message-wrapper'
+        errWrapper.innerHTML = `<div class="lexora-message">
+          <div class="lexora-header"><div class="lexora-avatar">L</div><div class="lexora-name">Lexora</div></div>
+          <div class="card visible"><div class="card-label">ERROR</div><p style="color:#f44336;font-size:13px">${e.message}</p></div>
+        </div>`
+        chatArea.appendChild(errWrapper)
       }
 
-      btn.disabled = false
-      btn.textContent = 'Generate Architecture + Code'
+      sendBtn.disabled = false
+      chatArea.scrollTop = chatArea.scrollHeight
+    }
+
+    const stackOptions = {
+      frontend: ['React', 'Vue.js', 'Next.js', 'Svelte', 'HTML/CSS/JS', 'React Native', 'Flutter', 'Angular'],
+      backend: ['Node.js + Express', 'FastAPI', 'Django', 'Flask', 'Spring Boot', 'Laravel'],
+      database: ['MongoDB', 'PostgreSQL', 'MySQL', 'Firebase', 'Supabase', 'SQLite'],
+      hosting: ['Vercel', 'Railway', 'Netlify', 'AWS', 'Google Cloud', 'Heroku'],
+    }
+
+    function renderResponse(data, chatArea) {
+      const { role, intent, architecture, tasks, quality, files } = data
+      const wrapper = document.createElement('div')
+      wrapper.className = 'message-wrapper'
+
+      const stackKeys = Object.keys(architecture.stack || {})
+      const stackHTML = stackKeys.map(key => `
+        <div class="stack-item">
+          <div class="stack-key">${key.toUpperCase()}</div>
+          <div class="stack-val">${architecture.stack[key]}</div>
+          <select class="stack-select" data-key="${key}">
+            <option value="${architecture.stack[key]}">${architecture.stack[key]}</option>
+            ${(stackOptions[key] || []).filter(o => o !== architecture.stack[key]).map(o => `<option value="${o}">${o}</option>`).join('')}
+          </select>
+        </div>`).join('')
+
+      const componentTags = [
+        role.requires_backend ? `<span class="tag green">Backend ✓</span>` : `<span class="tag red">Backend</span>`,
+        role.requires_database ? `<span class="tag green">Database ✓</span>` : `<span class="tag red">Database</span>`,
+        role.requires_authentication ? `<span class="tag green">Auth ✓</span>` : '',
+        role.requires_realtime ? `<span class="tag green">Realtime ✓</span>` : '',
+        role.requires_payments ? `<span class="tag green">Payments ✓</span>` : '',
+        role.requires_ml ? `<span class="tag green">ML ✓</span>` : '',
+      ].join('')
+
+      wrapper.innerHTML = `
+        <div class="lexora-message">
+          <div class="lexora-header">
+            <div class="lexora-avatar">L</div>
+            <div class="lexora-name">Lexora</div>
+          </div>
+
+          <div class="card" id="card-role">
+            <div class="card-label">ROLE DETECTED</div>
+            <p style="font-size:15px;font-weight:500;margin-bottom:10px">${role.primary_role}</p>
+            ${componentTags}
+            <p style="font-size:12px;color:#444;margin-top:10px;font-style:italic">${role.reasoning}</p>
+          </div>
+
+          <div class="card" id="card-intent">
+            <div class="card-label">INTENT</div>
+            <p style="font-size:16px;font-weight:500;margin-bottom:6px">${intent.goal}</p>
+            <p style="font-size:12px;color:#555;margin-bottom:12px">${intent.problem_being_solved}</p>
+            <div>${[intent.domain, intent.complexity, intent.output_type].map(t => `<span class="tag">${t}</span>`).join('')}</div>
+            <p style="font-size:12px;color:#444;margin-top:10px">👥 ${intent.target_users}</p>
+            <div style="margin-top:10px">${(intent.core_features || []).map(f => `<span class="tag">${f}</span>`).join('')}</div>
+          </div>
+
+          <div class="card" id="card-arch">
+            <div class="card-label">ARCHITECTURE</div>
+            <p style="font-size:12px;color:#444;margin-bottom:14px;font-style:italic">${architecture.why_this_stack || ''}</p>
+            <div class="stack-grid">${stackHTML}</div>
+            <button class="regen-btn" onclick="applyCustomStack()">⚙ Apply Custom Stack & Regenerate</button>
+          </div>
+
+          <div class="card" id="card-tasks">
+            <div class="card-label">TASK BREAKDOWN</div>
+            ${(tasks.phases || []).map(p => `
+              <div class="phase">
+                <div class="phase-name">${p.phase}</div>
+                <div class="phase-meta">${p.duration} · ${p.tasks.length} tasks</div>
+              </div>`).join('')}
+            <p style="font-size:12px;color:#444;margin-top:12px">Total: ${tasks.total_estimated_time} · Team: ${tasks.recommended_team_size}</p>
+          </div>
+
+          <div class="card" id="card-quality">
+            <div class="card-label">QUALITY CHECK</div>
+            <div class="score-big">${quality.quality_score}<span style="font-size:20px;color:#333">/10</span></div>
+            <div class="approved-badge ${quality.approved ? 'yes' : 'no'}">${quality.approved ? '✓ Approved' : '⚠ Needs Review'}</div>
+            <div class="score-verdict">${quality.verdict || ''}</div>
+            ${quality.features_missing?.length ? `<p style="font-size:12px;color:#f44336;margin-top:10px">Missing: ${quality.features_missing.join(', ')}</p>` : ''}
+          </div>
+
+          <div class="card" id="card-code">
+            <div class="card-label">GENERATED CODE</div>
+            ${Object.entries(files).map(([name, content]) => `
+              <div class="file-item">
+                <div class="file-path">📄 ${name}</div>
+                <div class="file-preview">${content.substring(0, 80)}</div>
+              </div>`).join('')}
+            <button class="download-btn" onclick="downloadFiles()">⬇ Download Project as ZIP</button>
+          </div>
+        </div>`
+
+      chatArea.appendChild(wrapper)
+
+      // Animate cards in one by one
+      const cards = wrapper.querySelectorAll('.card')
+      cards.forEach((card, i) => {
+        setTimeout(() => {
+          card.classList.add('visible')
+          chatArea.scrollTop = chatArea.scrollHeight
+        }, i * 300)
+      })
     }
 
     function applyCustomStack() {
+      const idea = history[0]
+      if (!idea) return
       const stack = {}
       document.querySelectorAll('.stack-select').forEach(sel => {
         if (sel.value) stack[sel.dataset.key] = sel.value
       })
-      build(stack)
+      buildWithStack(idea, stack)
+    }
+
+    async function buildWithStack(idea, userStack) {
+      const chatArea = document.getElementById('chatArea')
+      const sendBtn = document.getElementById('sendBtn')
+      sendBtn.disabled = true
+
+      const typingWrapper = document.createElement('div')
+      typingWrapper.className = 'message-wrapper'
+      typingWrapper.innerHTML = `
+        <div class="lexora-message">
+          <div class="lexora-header"><div class="lexora-avatar">L</div><div class="lexora-name">Lexora</div></div>
+          <div class="typing"><span></span><span></span><span></span></div>
+        </div>`
+      chatArea.appendChild(typingWrapper)
+      chatArea.scrollTop = chatArea.scrollHeight
+
+      try {
+        const res = await fetch('/build', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idea, user_stack: userStack })
+        })
+        const data = await res.json()
+        if (data.error) throw new Error(data.error)
+        generatedFiles = data.files || {}
+        typingWrapper.remove()
+        renderResponse(data, chatArea)
+      } catch(e) {
+        typingWrapper.remove()
+      }
+
+      sendBtn.disabled = false
     }
 
     async function downloadFiles() {
@@ -116,101 +701,6 @@
       a.href = url
       a.download = 'lexora-project.zip'
       a.click()
-    }
-
-    const stackOptions = {
-      frontend: ['React', 'Vue.js', 'Angular', 'Svelte', 'Next.js', 'HTML/CSS/JS', 'React Native', 'Flutter'],
-      backend: ['Node.js + Express', 'FastAPI', 'Django', 'Flask', 'Spring Boot', 'Laravel', 'Ruby on Rails'],
-      database: ['MongoDB', 'PostgreSQL', 'MySQL', 'Firebase', 'Supabase', 'SQLite', 'Redis'],
-      hosting: ['Vercel', 'Railway', 'AWS', 'Google Cloud', 'Netlify', 'Heroku', 'DigitalOcean'],
-    }
-
-    function render(data) {
-      const { role, intent, architecture, tasks, quality, summary, files } = data
-
-      const components = role.requires_backend || role.requires_database
-        ? `
-          <div style="margin-top:12px">
-            ${role.requires_backend ? '<span class="tag active">Backend ✓</span>' : '<span class="tag inactive">Backend ✗</span>'}
-            ${role.requires_database ? '<span class="tag active">Database ✓</span>' : '<span class="tag inactive">Database ✗</span>'}
-            ${role.requires_authentication ? '<span class="tag active">Auth ✓</span>' : ''}
-            ${role.requires_realtime ? '<span class="tag active">Realtime ✓</span>' : ''}
-            ${role.requires_payments ? '<span class="tag active">Payments ✓</span>' : ''}
-            ${role.requires_ml ? '<span class="tag active">ML ✓</span>' : ''}
-          </div>` : ''
-
-      const stackKeys = Object.keys(architecture.stack || {})
-      const stackCustomizer = stackKeys.map(key => `
-        <div class="stack-item">
-          <div class="stack-label">${key.toUpperCase()}</div>
-          <select class="stack-select" data-key="${key}">
-            <option value="${architecture.stack[key]}">${architecture.stack[key]} (recommended)</option>
-            ${(stackOptions[key] || []).filter(o => o !== architecture.stack[key]).map(o => `<option value="${o}">${o}</option>`).join('')}
-          </select>
-        </div>
-      `).join('')
-
-      document.getElementById('output').innerHTML = `
-        <div class="card">
-          <h3>ROLE DETECTED</h3>
-          <div class="role-badge"><span>Primary:</span>${role.primary_role}</div>
-          <div style="margin-top:8px">${(role.secondary_roles || []).map(r => `<span class="tag">${r}</span>`).join('')}</div>
-          ${components}
-          <p style="font-size:12px;color:#555;margin-top:12px;font-style:italic">${role.reasoning}</p>
-        </div>
-
-        <div class="card">
-          <h3>INTENT</h3>
-          <p style="font-size:18px;font-weight:500;margin-bottom:8px">${intent.goal}</p>
-          <p style="font-size:13px;color:#555;margin-bottom:12px">${intent.problem_being_solved}</p>
-          <div><span class="tag">${intent.domain}</span><span class="tag">${intent.complexity}</span><span class="tag">${intent.output_type}</span><span class="tag">${intent.monetization_potential}</span></div>
-          <p style="font-size:13px;color:#555;margin-top:12px">Target: ${intent.target_users}</p>
-          <div style="margin-top:12px">${intent.core_features.map(f => `<span class="tag">${f}</span>`).join('')}</div>
-        </div>
-
-        <div class="card">
-          <h3>ARCHITECTURE</h3>
-          <p style="font-size:12px;color:#555;margin-bottom:16px;font-style:italic">${architecture.why_this_stack || ''}</p>
-          <div class="stack-grid">${stackCustomizer}</div>
-          <button class="customize-btn" onclick="applyCustomStack()">⚙ Apply Custom Stack & Regenerate</button>
-        </div>
-
-        <div class="card">
-          <h3>TASK BREAKDOWN</h3>
-          ${tasks.phases.map(p => `<div class="phase"><div class="phase-title">${p.phase}</div><div class="phase-duration">${p.duration} · ${p.tasks.length} tasks</div></div>`).join('')}
-          <p style="font-size:13px;color:#555;margin-top:12px">Total: ${tasks.total_estimated_time} · Team: ${tasks.recommended_team_size}</p>
-        </div>
-
-        <div class="card">
-          <h3>QUALITY CHECK</h3>
-          <div class="score">${quality.quality_score}<span style="font-size:18px;color:#555">/10</span></div>
-          <div class="score-sub">Quality Score</div>
-          <div class="approved ${quality.approved ? 'yes' : 'no'}">${quality.approved ? '✓ Approved' : '⚠ Needs Review'}</div>
-          <div class="verdict">${quality.verdict || ''}</div>
-          <div style="margin-top:16px">
-            ${quality.features_missing && quality.features_missing.length ? `<p style="font-size:12px;color:#f44336;margin-bottom:8px">Missing: ${quality.features_missing.join(', ')}</p>` : ''}
-            ${quality.improvements.map(i => `<div style="font-size:13px;color:#888;padding:6px 0;border-bottom:1px solid #1a1a1a">${i}</div>`).join('')}
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>GENERATED CODE</h3>
-          ${Object.entries(files).map(([name, content]) => `
-            <div class="file-card">
-              <div class="file-name">📄 ${name}</div>
-              <div class="file-preview">${content.substring(0, 400)}...</div>
-            </div>
-          `).join('')}
-          <button class="download-btn" onclick="downloadFiles()">⬇ Download Project as ZIP</button>
-        </div>
-
-        <div class="card">
-          <h3>PROJECT STATE</h3>
-          <p style="font-size:13px;color:#888">ID: ${summary.project_id}</p>
-          <p style="font-size:13px;color:#888;margin-top:4px">Phase: ${summary.progress.current_phase}</p>
-          <p style="font-size:13px;color:#888;margin-top:4px">Status: ${summary.status}</p>
-        </div>
-      `
     }
   </script>
 </body>
