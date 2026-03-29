@@ -10,6 +10,7 @@ from engines.code_quality_guard.guard import CodeQualityGuard
 import os
 import zipfile
 import io
+import json
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 CORS(app)
@@ -64,6 +65,64 @@ def build():
             "summary": summary,
             "quality": quality,
             "files": files,
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/improve', methods=['POST'])
+def improve():
+    data = request.json
+    idea = data.get('idea', '')
+    feedback = data.get('feedback', '')
+    current_files = data.get('current_files', {})
+    current_intent = data.get('current_intent', {})
+    current_architecture = data.get('current_architecture', {})
+
+    if not feedback:
+        return jsonify({"error": "No feedback provided"}), 400
+
+    try:
+        executor = ExecutionEngine()
+        
+        prompt = f"""
+You are Lexora's Iteration Engine improving an existing project.
+
+Original Project: {json.dumps(current_intent, indent=2)}
+Current Architecture: {json.dumps(current_architecture, indent=2)}
+User Feedback: "{feedback}"
+
+Current files:
+{json.dumps({k: v[:500] for k, v in current_files.items()}, indent=2)}
+
+STRICT RULES:
+- Do NOT create a new project
+- Improve the EXISTING code based on feedback
+- Keep what's working, fix what's not
+- Apply the specific improvements the user requested
+- Return the same file structure with improved code
+
+Return ONLY a valid JSON object where keys are file paths and values are improved file contents.
+Return ONLY the JSON. No explanation. No markdown.
+"""
+        response = executor.client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=4000,
+        )
+
+        from engines.utils import clean_and_parse
+        raw = response.choices[0].message.content
+        improved_files = clean_and_parse(raw)
+
+        guard = CodeQualityGuard()
+        quality = guard.review(current_intent, current_architecture, improved_files)
+
+        return jsonify({
+            "files": improved_files,
+            "quality": quality,
+            "message": "Code improved based on your feedback"
         })
 
     except Exception as e:
